@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAYKELCITO WWB</title>
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MAYKELCITO">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 35%, #202020 0%, #090909 35%, #000 72%);
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+    #rain {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 40px 24px;
+      animation: fadeIn 1s ease;
+    }
+    .logo {
+      width: 105px;
+      height: 105px;
+      margin: 0 auto 25px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, #242424, #050505);
+      border: 1px solid #333;
+      box-shadow: 0 0 35px rgba(255,255,255,.08), inset 0 0 25px rgba(255,255,255,.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 31px;
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
+    h1 {
+      font-size: clamp(34px, 8vw, 68px);
+      font-weight: 950;
+      letter-spacing: 3px;
+      text-shadow: 0 0 25px rgba(255,255,255,.15);
+    }
+    .subtitle {
+      margin-top: 12px;
+      color: #888;
+      font-size: 14px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+    .logo { animation: float 3.2s ease-in-out infinite; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    .welcome {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      z-index: 2;
+      padding: 12px 22px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      animation: welcome 4.5s ease 0.6s both;
+    }
+    @keyframes welcome {
+      0%   { opacity: 0; transform: translate(-50%, -20px); }
+      12%  { opacity: 1; transform: translate(-50%, 0); }
+      80%  { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -12px); }
+    }
+    #flash {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle at 50% 0%, #ffffff 0%, #a9c8ff 45%, #5b7bb8 100%);
+    }
+    .lang {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 3;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      font-weight: 900;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .lang:active { transform: scale(.94); }
+    .music {
+      position: fixed;
+      right: 16px;
+      bottom: 72px;
+      z-index: 3;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 20px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .music:active { transform: scale(.94); }
+    .music.on { animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,.35); }
+      50% { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+    }
+    .hud {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .clock {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: #d8d8d8;
+      padding: 7px 11px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .clock-label { color: #888; margin-right: 6px; letter-spacing: 1px; }
+    .colors { display: flex; gap: 8px; }
+    .dot {
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3);
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .dot.active { border-color: #fff; transform: scale(1.18); }
+    .subtitle { min-height: 20px; }
+    .cursor {
+      margin-left: 2px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    button.download {
+      border: 0;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .buttons {
+      margin-top: 38px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 17px 34px;
+      min-width: 240px;
+      border-radius: 14px;
+      background: #fff;
+      color: #000;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 0 10px 35px rgba(255,255,255,.12);
+      transition: .25s ease;
+    }
+    .download:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 15px 45px rgba(255,255,255,.22);
+    }
+    .download:active { transform: scale(.97); }
+    .arrow { font-size: 20px; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="rain"></canvas>
+  <div id="flash"></div>
+  <div class="welcome" id="welcome">👋 ¡Bienvenido a MAYKELCITO WWB!</div>
+  <button class="lang" id="lang" type="button">EN</button>
+  <button class="music" id="music" type="button" aria-label="Música">🔇</button>
+  <audio id="bgm" src="musica.mp3" loop preload="auto"></audio>
+  <div class="hud">
+    <div class="clock"><span class="clock-label">ECU</span><span id="clock">--:--:--</span></div>
+    <div class="colors" id="colors"></div>
+  </div>
+  <main class="container">
+    <div class="logo">MW</div>
+    <h1>MAYKELCITO WWB</h1>
+    <p class="subtitle"><span id="typed"></span><span class="cursor">|</span></p>
+    <div class="buttons">
+      <a class="download" href="https://www.mediafire.com/file/q0ayd515477cywm?dkey=x7h7zx29wdv&r=1103" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">↓</span>
+        <span id="apkLabel">Instalar APK</span>
+      </a>
+      <a class="download" href="https://www.tiktok.com/@maykelhub" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">♪</span>
+        TikTok Maykelcito
+      </a>
+      <button class="download" id="share" type="button">
+        <span class="arrow">⇪</span>
+        <span id="shareLabel">Compartir</span>
+      </button>
+      <a class="download" id="report" href="#">
+        <span class="arrow">⚠</span>
+        <span id="reportLabel">Reportar problema</span>
+      </a>
+      <button class="download" id="installApp" type="button" style="display:none">
+        <span class="arrow">＋</span>
+        <span id="installLabel">Agregar a inicio</span>
+      </button>
+    </div>
+  </main>
+  <script>
+    const canvas = document.getElementById('rain');
+    const ctx = canvas.getContext('2d');
+    let drops = [];
+    let rainRGB = '255,255,255';
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const count = Math.floor(canvas.width / 8);
+      drops = Array.from({ length: count }, () => newDrop(true));
+    }
+
+    function newDrop(randomY) {
+      return {
+        x: Math.random() * canvas.width,
+        y: randomY ? Math.random() * canvas.height : -20,
+        len: 12 + Math.random() * 22,
+        speed: 6 + Math.random() * 10,
+        opacity: 0.15 + Math.random() * 0.35
+      };
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 1.2;
+      for (const d of drops) {
+        ctx.strokeStyle = 'rgba(' + rainRGB + ',' + d.opacity + ')';
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x - 2, d.y + d.len);
+        ctx.stroke();
+        d.y += d.speed;
+        d.x -= 0.4;
+        if (d.y > canvas.height) Object.assign(d, newDrop(false));
+      }
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+
+    // Idiomas
+    const i18n = {
+      es: { subtitle: 'Sitio oficial', apk: 'Instalar APK', share: 'Compartir', install: 'Agregar a inicio', report: 'Reportar problema', reportMsg: 'Hola, quiero reportar un problema con la página / APK de MAYKELCITO WWB: ', copied: '¡Enlace copiado!', welcome: '👋 ¡Bienvenido a MAYKELCITO WWB!', toggle: 'EN', htmlLang: 'es' },
+      en: { subtitle: 'Official Website', apk: 'Install APK', share: 'Share', install: 'Add to home screen', report: 'Report a problem', reportMsg: 'Hi, I want to report a problem with the MAYKELCITO WWB page / APK: ', copied: 'Link copied!', welcome: '👋 Welcome to MAYKELCITO WWB!', toggle: 'ES', htmlLang: 'en' }
+    };
+    let lang = 'es';
+    try {
+      const saved = localStorage.getItem('lang');
+      if (saved === 'en' || saved === 'es') lang = saved;
+    } catch (e) {}
+
+    const typed = document.getElementById('typed');
+    const welcomeEl = document.getElementById('welcome');
+    const langBtn = document.getElementById('lang');
+    const reportLink = document.getElementById('report');
+    const reportLabel = document.getElementById('reportLabel');
+    // Cambia este correo por el tuyo: aquí llegarán los reportes
+    const REPORT_EMAIL = 'adrianmaylel@gmail.com';
+    let typeTimer = null;
+
+    // Texto que se escribe solo
+    function typeText(text) {
+      clearTimeout(typeTimer);
+      let idx = 0;
+      (function step() {
+        typed.textContent = text.slice(0, idx++);
+        if (idx <= text.length) typeTimer = setTimeout(step, 110);
+      })();
+    }
+
+    function applyLang(isFirst) {
+      const t = i18n[lang];
+      document.documentElement.lang = t.htmlLang;
+      document.getElementById('apkLabel').textContent = t.apk;
+      shareLabel.textContent = t.share;
+      document.getElementById('installLabel').textContent = t.install;
+      reportLabel.textContent = t.report;
+      reportLink.href = 'mailto:' + REPORT_EMAIL +
+        '?subject=' + encodeURIComponent(t.report + ' - MAYKELCITO WWB') +
+        '&body=' + encodeURIComponent(t.reportMsg);
+      welcomeEl.textContent = t.welcome;
+      langBtn.textContent = t.toggle;
+      if (isFirst) {
+        typeTimer = setTimeout(() => typeText(t.subtitle), 700);
+      } else {
+        typeText(t.subtitle);
+      }
+    }
+
+    // Botón compartir
+    const shareBtn = document.getElementById('share');
+    const shareLabel = document.getElementById('shareLabel');
+    shareBtn.addEventListener('click', async () => {
+      const data = { title: 'MAYKELCITO WWB', url: 'https://maykel644.github.io/maykelcito/' };
+      if (navigator.share) {
+        try { await navigator.share(data); } catch (e) {}
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(data.url);
+      } catch (e) {
+        const t = document.createElement('textarea');
+        t.value = data.url;
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand('copy');
+        t.remove();
+      }
+      shareLabel.textContent = i18n[lang].copied;
+      setTimeout(() => { shareLabel.textContent = i18n[lang].share; }, 2000);
+    });
+
+    // Cambio de idioma
+    langBtn.addEventListener('click', () => {
+      lang = lang === 'es' ? 'en' : 'es';
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+      applyLang(false);
+    });
+    applyLang(true);
+
+    // Hora en vivo (Ecuador)
+    const clockEl = document.getElementById('clock');
+    const clockFmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Guayaquil',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    function tick() { clockEl.textContent = clockFmt.format(new Date()); }
+    tick();
+    setInterval(tick, 1000);
+
+    // Selector de color de la lluvia
+    const palette = [
+      { name: 'Blanco', rgb: '255,255,255' },
+      { name: 'Rojo', rgb: '255,60,60' },
+      { name: 'Azul', rgb: '70,150,255' },
+      { name: 'Morado', rgb: '180,90,255' },
+      { name: 'Verde', rgb: '60,255,140' }
+    ];
+    const colorsEl = document.getElementById('colors');
+    const dots = [];
+    function setRain(i) {
+      rainRGB = palette[i].rgb;
+      dots.forEach((d, j) => d.classList.toggle('active', j === i));
+      try { localStorage.setItem('rain', String(i)); } catch (e) {}
+    }
+    palette.forEach((c, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dot';
+      b.style.background = 'rgb(' + c.rgb + ')';
+      b.setAttribute('aria-label', c.name);
+      b.addEventListener('click', () => setRain(i));
+      colorsEl.appendChild(b);
+      dots.push(b);
+    });
+    let startColor = 0;
+    try {
+      const s = parseInt(localStorage.getItem('rain'), 10);
+      if (s >= 0 && s < palette.length) startColor = s;
+    } catch (e) {}
+    setRain(startColor);
+
+    // Música de fondo
+    const bgm = document.getElementById('bgm');
+    const musicBtn = document.getElementById('music');
+    bgm.volume = 0.5;
+    let userPaused = false;
+    let resumeOnShow = false;
+    try { if (localStorage.getItem('music') === 'off') userPaused = true; } catch (e) {}
+
+    function updateMusicUI() {
+      const playing = !bgm.paused;
+      musicBtn.textContent = playing ? '🔊' : '🔇';
+      musicBtn.classList.toggle('on', playing);
+    }
+    function playMusic() {
+      const p = bgm.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+    bgm.addEventListener('play', updateMusicUI);
+    bgm.addEventListener('pause', updateMusicUI);
+
+    musicBtn.addEventListener('click', () => {
+      if (bgm.paused) {
+        userPaused = false;
+        playMusic();
+      } else {
+        userPaused = true;
+        bgm.pause();
+      }
+      try { localStorage.setItem('music', userPaused ? 'off' : 'on'); } catch (e) {}
+    });
+
+    // Los celulares no dejan sonar música sola: arranca con el primer toque en la página
+    function startOnGesture(e) {
+      if (e.target.closest && e.target.closest('#music')) return;
+      document.removeEventListener('pointerdown', startOnGesture);
+      if (!userPaused) playMusic();
+    }
+    document.addEventListener('pointerdown', startOnGesture);
+    if (!userPaused) playMusic();
+
+    // Se pausa al salir de la página y vuelve al regresar
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        resumeOnShow = !bgm.paused;
+        bgm.pause();
+      } else if (resumeOnShow && !userPaused) {
+        resumeOnShow = false;
+        playMusic();
+      }
+    });
+
+    // App instalable (pantalla de inicio)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+    let installEvent = null;
+    const installBtn = document.getElementById('installApp');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      installEvent = e;
+      installBtn.style.display = 'inline-flex';
+    });
+    installBtn.addEventListener('click', async () => {
+      if (!installEvent) return;
+      installEvent.prompt();
+      try { await installEvent.userChoice; } catch (e) {}
+      installEvent = null;
+      installBtn.style.display = 'none';
+    });
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
+    });
+
+    // Relámpagos suaves
+    const flash = document.getElementById('flash');
+    function lightning() {
+      const bursts = Math.random() < 0.5 ? 2 : 1;
+      let n = 0;
+      (function hit() {
+        flash.style.transition = 'opacity .06s';
+        flash.style.opacity = (0.2 + Math.random() * 0.2).toFixed(2);
+        setTimeout(() => {
+          flash.style.transition = 'opacity .5s';
+          flash.style.opacity = 0;
+          if (++n < bursts) setTimeout(hit, 160);
+        }, 80);
+      })();
+      setTimeout(lightning, 5000 + Math.random() * 9000);
+    }
+    setTimeout(lightning, 4000);
+  </script>
+</body>
+</html>
