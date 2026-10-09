@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAYKELCITO WWB</title>
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="MAYKELCITO">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 35%, #202020 0%, #090909 35%, #000 72%);
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    #rain {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 40px 24px 170px;
+      animation: fadeIn 1s ease;
+    }
+    .logo {
+      width: 105px;
+      height: 105px;
+      margin: 0 auto 25px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, #242424, #050505);
+      border: 1px solid #333;
+      box-shadow: 0 0 35px rgba(255,255,255,.08), inset 0 0 25px rgba(255,255,255,.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 31px;
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
+    h1 {
+      font-size: clamp(34px, 8vw, 68px);
+      font-weight: 950;
+      letter-spacing: 3px;
+      text-shadow: 0 0 25px rgba(255,255,255,.15);
+    }
+    .subtitle {
+      margin-top: 12px;
+      color: #888;
+      font-size: 14px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+    .logo { animation: float 3.2s ease-in-out infinite; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    .welcome {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      z-index: 2;
+      padding: 12px 22px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      animation: welcome 4.5s ease 0.6s both;
+    }
+    @keyframes welcome {
+      0%   { opacity: 0; transform: translate(-50%, -20px); }
+      12%  { opacity: 1; transform: translate(-50%, 0); }
+      80%  { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -12px); }
+    }
+    #flash {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(circle at 50% 0%, #ffffff 0%, #a9c8ff 45%, #5b7bb8 100%);
+    }
+    .lang {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 3;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      font-weight: 900;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .lang:active { transform: scale(.94); }
+    .music, .music-list {
+      position: fixed;
+      right: 16px;
+      bottom: 72px;
+      z-index: 3;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 20px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .music:active, .music-list:active { transform: scale(.94); }
+    .music-list { bottom: 128px; }
+    .playlist {
+      position: fixed;
+      right: 74px;
+      bottom: 72px;
+      z-index: 4;
+      width: min(78vw, 290px);
+      max-height: 50vh;
+      overflow-y: auto;
+      padding: 8px;
+      border-radius: 14px;
+      background: rgba(10,10,10,.88);
+      border: 1px solid rgba(255,255,255,.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      text-align: left;
+    }
+    .playlist-title {
+      padding: 6px 10px 8px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #888;
+    }
+    .track {
+      display: block;
+      width: 100%;
+      padding: 11px 12px;
+      margin-top: 4px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #e8e8e8;
+      font-family: inherit;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .track:active { background: rgba(255,255,255,.12); }
+    .track.active { background: rgba(255,255,255,.16); color: #fff; font-weight: 700; }
+    .music.on { animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,.35); }
+      50% { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+    }
+    .hud {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .clock {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: #d8d8d8;
+      padding: 7px 11px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .clock-label { color: #888; margin-right: 6px; letter-spacing: 1px; }
+    .colors { display: flex; gap: 8px; }
+    .dot {
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3);
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .dot.active { border-color: #fff; transform: scale(1.18); }
+    .subtitle { min-height: 20px; }
+    .cursor {
+      margin-left: 2px;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    button.download {
+      border: 0;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .buttons {
+      margin-top: 38px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 17px 34px;
+      min-width: 240px;
+      border-radius: 14px;
+      background: #fff;
+      color: #000;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 16px;
+      box-shadow: 0 10px 35px rgba(255,255,255,.12);
+      transition: .25s ease;
+    }
+    .download:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 15px 45px rgba(255,255,255,.22);
+    }
+    .download:active { transform: scale(.97); }
+    .arrow { font-size: 20px; }
+    .video-box {
+      width: min(92vw, 380px);
+      margin: 26px auto 0;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.2);
+      background: #000;
+      box-shadow: 0 10px 35px rgba(255,255,255,.08);
+    }
+    .video-box video {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #000;
+    }
+    .reels {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: #000;
+    }
+    .reels-feed {
+      height: calc(100% - var(--nav));
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
+    .reels-feed::-webkit-scrollbar { display: none; }
+    .reel {
+      position: relative;
+      height: 100%;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      background: #000;
+    }
+    .reel video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+    .reel-title {
+      position: absolute;
+      left: 16px;
+      right: 70px;
+      bottom: 26px;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: left;
+      text-shadow: 0 1px 8px #000;
+      pointer-events: none;
+    }
+    .reel-play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 76px;
+      height: 76px;
+      margin: -38px 0 0 -38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(0,0,0,.45);
+      font-size: 32px;
+      opacity: 0;
+      transition: opacity .2s ease;
+      pointer-events: none;
+    }
+    .reel.paused .reel-play { opacity: 1; }
+    .reel-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: rgba(255,255,255,.22);
+      pointer-events: none;
+    }
+    .reel-bar i {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: #fff;
+    }
+    .reels-btn {
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 0px) + 14px);
+      z-index: 2;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.3);
+      background: rgba(0,0,0,.5);
+      color: #fff;
+      font-size: 18px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .reels-close { left: 14px; }
+    .reels-mute { right: 14px; }
+    .reels-chat { right: 70px; }
+    .chat {
+      position: absolute; inset: 0; z-index: 4; display: none; flex-direction: column;
+      background: #000;
+    }
+    .chat-head { padding: 18px 20px 12px 70px; font-size: 18px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,.15); min-height: 56px; display: flex; align-items: center; }
+    .chat-list { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { max-width: 88%; align-self: flex-start; background: rgba(255,255,255,.1); border-radius: 14px; padding: 8px 12px; text-align: left; word-break: break-word; }
+    .chat-msg.me { align-self: flex-end; background: #fe2c55; }
+    .chat-msg b { display: block; font-size: 12px; opacity: .8; margin-bottom: 2px; }
+    .chat-msg span { font-size: 15px; }
+    .chat-msg small { margin-left: 8px; font-size: 11px; opacity: .6; }
+    .chat-msg .chat-del { margin-left: 8px; border: 0; background: none; color: #fff; opacity: .7; cursor: pointer; font-size: 13px; }
+    .chat-empty { margin: auto; opacity: .6; }
+    .chat-form { display: flex; gap: 8px; padding: 10px 12px calc(env(safe-area-inset-bottom,0px) + 12px); border-top: 1px solid rgba(255,255,255,.15); }
+    .chat-form input { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 22px; border: 1px solid rgba(255,255,255,.25); background: #111; color: #fff; font-size: 16px; font-family: inherit; }
+    .chat-form button { padding: 0 18px; border: 0; border-radius: 22px; background: #fe2c55; color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .reels-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      color: #aaa;
+      font-size: 15px;
+      pointer-events: none;
+    }
+    .reels { --nav: calc(60px + env(safe-area-inset-bottom, 0px)); }
+    .reels-nav {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+      height: var(--nav); padding-bottom: env(safe-area-inset-bottom, 0px);
+      display: flex; align-items: center; justify-content: space-around;
+      background: #000; border-top: 1px solid rgba(255,255,255,.12);
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      border: 0; background: none; color: rgba(255,255,255,.65);
+      font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer; padding: 4px 0;
+    }
+    .nav-item .ni { font-size: 22px; line-height: 1; }
+    .nav-item.active { color: #fff; }
+    .reels-add {
+      position: relative; width: 52px; height: 34px; margin: 0 10px; padding: 0;
+      border: 0; border-radius: 10px; background: #fff; color: #000;
+      font-size: 24px; font-weight: 900; line-height: 34px; font-family: inherit; cursor: pointer;
+      box-shadow: -3px 0 0 #20d5ec, 3px 0 0 #fe2c55;
+    }
+    .reels-add:active { transform: scale(.94); }
+    .reel-actions {
+      position: absolute;
+      right: 14px;
+      bottom: 90px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .reel-like {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: #fff;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .reel-like .heart {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      line-height: 1;
+      text-shadow: 0 1px 8px rgba(0,0,0,.6);
+    }
+    .reel-like .count {
+      font-size: 13px;
+      font-weight: 700;
+      text-shadow: 0 1px 6px #000;
+    }
+    .reel-like.liked .heart { color: #ff3b5c; }
+    .reel-avatar {
+      position: relative;
+      width: 52px; height: 52px; margin-bottom: 8px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: #111; color: #fff;
+      font-size: 22px; font-weight: 800; font-family: inherit;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0; cursor: pointer;
+    }
+    .reel-avatar.plain { cursor: default; }
+    .reel-avatar.has-img, .profile-avatar.has-img { background-size: cover; background-position: center; color: transparent; }
+    .profile-bio { margin: 8px auto 0; max-width: 280px; font-size: 14px; opacity: .85; white-space: pre-wrap; word-break: break-word; }
+    .profile-edit { margin-top: 12px; padding: 9px 22px; border-radius: 8px; border: 1px solid rgba(255,255,255,.35); background: none; color: #fff; font-weight: 700; font-family: inherit; font-size: 14px; cursor: pointer; display: none; }
+    .edit-preview { width: 96px; height: 96px; margin: 0 auto 12px; border-radius: 50%; background: #222 center/cover; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 800; color: #fff; }
+    .edit-preview.has-img { color: transparent; }
+    .reel-avatar::after {
+      content: '+';
+      position: absolute; left: 50%; bottom: -10px; margin-left: -10px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #fe2c55; color: #fff;
+      font-size: 16px; font-weight: 700; line-height: 20px; text-align: center;
+    }
+    .reel-share {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 0; border: 0; background: none; color: #fff; font-family: inherit; cursor: pointer;
+    }
+    .reel-share .ico { font-size: 38px; line-height: 1; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
+    .reel-share .lbl { font-size: 13px; font-weight: 700; text-shadow: 0 1px 6px #000; }
+    .reel-like.pop .heart { animation: pop .35s ease; }
+    @keyframes pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+    .reel-del {
+      display: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.3);
+      background: rgba(0,0,0,.5);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .reels.is-owner .reel-del { display: block; }
+    .reel-user {
+      position: absolute;
+      left: 16px;
+      bottom: 52px;
+      max-width: calc(100% - 100px);
+      padding: 0;
+      border: 0;
+      background: none;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      text-shadow: 0 1px 8px #000;
+      cursor: pointer;
+      text-align: left;
+    }
+    .reel-user.plain { cursor: default; }
+    .profile {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: none;
+      flex-direction: column;
+      background: #000;
+      overflow-y: auto;
+    }
+    .profile-head { padding: 64px 20px 16px; text-align: center; }
+    .profile-avatar {
+      width: 84px; height: 84px; margin: 0 auto 10px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; font-weight: 800; color: #fff;
+      background: linear-gradient(135deg,#ff3b5c,#7a5cff);
+    }
+    .profile-name { font-size: 20px; font-weight: 800; }
+    .profile-count { margin-top: 4px; font-size: 14px; opacity: .7; }
+    .profile-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; padding: 0 2px 20px; }
+    .profile-grid button {
+      position: relative; aspect-ratio: 9/14; padding: 0; border: 0;
+      background: #111; overflow: hidden; cursor: pointer;
+    }
+    .profile-grid video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    .thumb-views { position: absolute; left: 6px; bottom: 5px; font-size: 12px; font-weight: 800; text-shadow: 0 1px 4px #000; color: #fff; }
+    .profile-empty { padding: 30px 20px; text-align: center; opacity: .7; }
+    .reels-panel {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0,0,0,.72);
+    }
+    .panel-box {
+      position: relative;
+      width: min(100%, 340px);
+      padding: 24px 20px 18px;
+      border-radius: 16px;
+      background: #151515;
+      border: 1px solid rgba(255,255,255,.2);
+      text-align: left;
+    }
+    .panel-box h3 { margin-bottom: 14px; font-size: 18px; }
+    .panel-box input[type="email"],
+    .panel-box input[type="password"],
+    .panel-box input[type="text"] {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 13px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.2);
+      background: #0b0b0b;
+      color: #fff;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    .file-pick {
+      display: block;
+      margin-bottom: 10px;
+      padding: 13px 14px;
+      border-radius: 10px;
+      border: 1px dashed rgba(255,255,255,.35);
+      color: #ddd;
+      font-size: 15px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .file-pick input { display: none; }
+    .panel-btn {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 12px;
+      background: #fff;
+      color: #000;
+      font-size: 16px;
+      font-weight: 900;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .panel-btn:disabled { opacity: .5; }
+    .panel-link {
+      display: block;
+      margin: 12px auto 0;
+      padding: 6px;
+      border: 0;
+      background: none;
+      color: #aaa;
+      font-size: 13px;
+      font-family: inherit;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .panel-x {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #aaa;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .panel-msg {
+      min-height: 18px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #ffb4b4;
+    }
+    .panel-msg.ok { color: #9be7a8; }
+    .panel-box { max-height: 88vh; overflow-y: auto; }
+    .panel-btn-alt {
+      margin-top: 10px;
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.4);
+    }
+    .reel-del.mine { display: block; }
+    .pending-item {
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .pending-item video {
+      display: block;
+      width: 100%;
+      max-height: 200px;
+      border-radius: 10px;
+      background: #000;
+    }
+    .pending-item p { margin: 8px 0; font-size: 14px; }
+    .pending-actions { display: flex; gap: 8px; }
+    .pending-actions button {
+      flex: 1;
+      padding: 10px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .pending-ok { background: #fff; color: #000; }
+    .pending-no { background: #3a1111; color: #ffb4b4; }
+    .live-panel {
+      width: min(92vw, 380px);
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.06);
+    }
+    .live-more {
+      display: block;
+      padding: 10px;
+      text-align: center;
+      font-size: 13px;
+      color: #cfcfcf;
+      text-decoration: none;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+    .live-panel iframe {
+      display: block;
+      width: 100%;
+      height: 420px;
+      border: 0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="rain"></canvas>
+  <div id="flash"></div>
+  <div class="welcome" id="welcome">👋 ¡Bienvenido a MAYKELCITO WWB!</div>
+  <button class="lang" id="lang" type="button">EN</button>
+  <button class="music" id="music" type="button" aria-label="Música">🔇</button>
+  <button class="music-list" id="musicList" type="button" aria-label="Lista de canciones">☰</button>
+  <div class="playlist" id="playlist" style="display:none"></div>
+  <audio id="bgm" preload="auto"></audio>
+  <div class="hud">
+    <div class="clock"><span class="clock-label">ECU</span><span id="clock">--:--:--</span></div>
+    <div class="colors" id="colors"></div>
+  </div>
+  <main class="container">
+    <div class="logo">MW</div>
+    <h1>MAYKELCITO WWB</h1>
+    <p class="subtitle"><span id="typed"></span><span class="cursor">|</span></p>
+    <div class="buttons">
+      <a class="download" href="https://www.tiktok.com/@maykelhub" target="_blank" rel="noopener noreferrer">
+        <span class="arrow">♪</span>
+        TikTok Maykelcito
+      </a>
+      <a class="download" id="casfilmBtn" href="#">
+        <span class="arrow">🎬</span>
+        <span>CASFILM</span>
+      </a>
+      <button class="download" id="share" type="button">
+        <span class="arrow">⇪</span>
+        <span id="shareLabel">Compartir</span>
+      </button>
+      <a class="download" id="report" href="#">
+        <span class="arrow">⚠</span>
+        <span id="reportLabel">Reportar problema</span>
+      </a>
+      <button class="download" id="installApp" type="button" style="display:none">
+        <span class="arrow">＋</span>
+        <span id="installLabel">Agregar a inicio</span>
+      </button>
+    </div>
+  </main>
+  <div class="reels" id="reels" style="display:none" role="dialog" aria-label="CASFILM">
+    <button class="reels-btn reels-close" id="reelsClose" type="button" aria-label="Cerrar">✕</button>
+    <button class="reels-btn reels-mute" id="reelsMute" type="button" aria-label="Sonido">🔊</button>
+    <div class="reels-feed" id="reelsFeed"></div>
+    <p class="reels-empty" id="casfilmEmpty">Próximamente: nuevos videos de CASFILM.</p>
+    <p class="reels-empty" id="reelsLoading" style="display:none">Cargando…</p>
+    <nav class="reels-nav" id="reelsNav">
+      <button class="nav-item active" id="navHome" type="button"><span class="ni">🏠</span>Inicio</button>
+      <button class="nav-item" id="navUsers" type="button"><span class="ni">👥</span>Usuarios</button>
+      <button class="reels-add" id="reelsAdd" type="button" aria-label="Agregar video">＋</button>
+      <button class="nav-item" id="chatOpen" type="button"><span class="ni">💬</span>Mensajes</button>
+      <button class="nav-item" id="navProfile" type="button"><span class="ni">👤</span>Perfil</button>
+    </nav>
+    <div class="chat" id="chatView">
+      <button class="reels-btn reels-close" id="chatClose" type="button" aria-label="Volver">←</button>
+      <div class="chat-head">💬 Chat general</div>
+      <div class="chat-list" id="chatList"></div>
+      <form class="chat-form" id="chatForm">
+        <input id="chatInput" type="text" maxlength="300" placeholder="Escribe un mensaje…" autocomplete="off">
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
+    <div class="profile" id="profileView">
+      <button class="reels-btn reels-close" id="profileClose" type="button" aria-label="Volver">←</button>
+      <div class="profile-head">
+        <div class="profile-avatar" id="profileAvatar"></div>
+        <div class="profile-name" id="profileName"></div>
+        <div class="profile-count" id="profileCount"></div>
+        <p class="profile-bio" id="profileBio"></p>
+        <button class="profile-edit" id="profileEdit" type="button">Editar perfil</button>
+      </div>
+      <div class="profile-grid" id="profileGrid"></div>
+    </div>
+    <div class="reels-panel" id="reelsPanel" style="display:none">
+      <div class="panel-box">
+        <button class="panel-x" id="panelClose" type="button" aria-label="Cerrar">✕</button>
+        <div id="loginView">
+          <h3>Entrar o crear cuenta</h3>
+          <input id="authEmail" type="email" placeholder="Correo" autocomplete="username">
+          <input id="authUser" type="text" placeholder="Nombre de usuario (solo al crear cuenta)" maxlength="20" autocapitalize="none" autocomplete="nickname">
+          <input id="authPass" type="password" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="current-password">
+          <button class="panel-btn" id="loginBtn" type="button">Entrar</button>
+          <button class="panel-btn panel-btn-alt" id="signupBtn" type="button">Crear cuenta</button>
+        </div>
+        <div id="nameView" style="display:none">
+          <h3>Elige tu nombre de usuario</h3>
+          <input id="nameInput" type="text" placeholder="Ej: maykel_01" maxlength="20" autocapitalize="none">
+          <button class="panel-btn" id="nameBtn" type="button">Guardar</button>
+        </div>
+        <div id="uploadView" style="display:none">
+          <h3>Subir video</h3>
+          <input id="upTitle" type="text" placeholder="Título (opcional)" maxlength="80">
+          <label class="file-pick"><input id="upFile" type="file" accept="video/*"><span id="upFileName">Elegir video</span></label>
+          <button class="panel-btn" id="uploadBtn" type="button">Subir</button>
+          <button class="panel-btn panel-btn-alt" id="myProfileBtn" type="button">Mi perfil</button>
+          <button class="panel-btn panel-btn-alt" id="pendingBtn" type="button" style="display:none">Revisar pendientes</button>
+          <button class="panel-link" id="logoutBtn" type="button">Cerrar sesión</button>
+        </div>
+        <div id="editView" style="display:none">
+          <h3>Editar perfil</h3>
+          <div class="edit-preview" id="editPreview"></div>
+          <label class="file-pick"><input id="editFile" type="file" accept="image/*"><span id="editFileName">Elegir foto de la galería</span></label>
+          <input id="editBio" type="text" placeholder="Biografía (opcional)" maxlength="100">
+          <button class="panel-btn" id="editSave" type="button">Guardar</button>
+          <button class="panel-link" id="editCancel" type="button">Cancelar</button>
+        </div>
+        <div id="usersView" style="display:none">
+          <h3>Usuarios</h3>
+          <div id="usersList"></div>
+        </div>
+        <div id="pendingView" style="display:none">
+          <h3>Pendientes de aprobar</h3>
+          <div id="pendingList"></div>
+          <button class="panel-link" id="pendingBack" type="button">Volver</button>
+        </div>
+        <p class="panel-msg" id="panelMsg"></p>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const canvas = document.getElementById('rain');
+    const ctx = canvas.getContext('2d');
+    let drops = [];
+    let rainRGB = '255,255,255';
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const count = Math.floor(canvas.width / 8);
+      drops = Array.from({ length: count }, () => newDrop(true));
+    }
+
+    function newDrop(randomY) {
+      return {
+        x: Math.random() * canvas.width,
+        y: randomY ? Math.random() * canvas.height : -20,
+        len: 12 + Math.random() * 22,
+        speed: 6 + Math.random() * 10,
+        opacity: 0.15 + Math.random() * 0.35
+      };
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 1.2;
+      for (const d of drops) {
+        ctx.strokeStyle = 'rgba(' + rainRGB + ',' + d.opacity + ')';
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x - 2, d.y + d.len);
+        ctx.stroke();
+        d.y += d.speed;
+        d.x -= 0.4;
+        if (d.y > canvas.height) Object.assign(d, newDrop(false));
+      }
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+
+    // Idiomas
+    const i18n = {
+      es: { subtitle: 'Sitio oficial', apk: 'Instalar APK', share: 'Compartir', install: 'Agregar a inicio', live: 'Ecuador en vivo', casfilmEmpty: 'Próximamente: nuevos videos de CASFILM.', report: 'Reportar problema', reportMsg: 'Hola, quiero reportar un problema con la página / APK de MAYKELCITO WWB: ', copied: '¡Enlace copiado!', welcome: '👋 ¡Bienvenido a MAYKELCITO WWB!', toggle: 'EN', htmlLang: 'es' },
+      en: { subtitle: 'Official Website', apk: 'Install APK', share: 'Share', install: 'Add to home screen', live: 'Ecuador live', casfilmEmpty: 'Coming soon: new CASFILM videos.', report: 'Report a problem', reportMsg: 'Hi, I want to report a problem with the MAYKELCITO WWB page / APK: ', copied: 'Link copied!', welcome: '👋 Welcome to MAYKELCITO WWB!', toggle: 'ES', htmlLang: 'en' }
+    };
+    let lang = 'es';
+    try {
+      const saved = localStorage.getItem('lang');
+      if (saved === 'en' || saved === 'es') lang = saved;
+    } catch (e) {}
+
+    const typed = document.getElementById('typed');
+    const welcomeEl = document.getElementById('welcome');
+    const langBtn = document.getElementById('lang');
+    const reportLink = document.getElementById('report');
+    const reportLabel = document.getElementById('reportLabel');
+    // Cambia este correo por el tuyo: aquí llegarán los reportes
+    const REPORT_EMAIL = 'adrianmaylel@gmail.com';
+    let typeTimer = null;
+
+    // Texto que se escribe solo
+    function typeText(text) {
+      clearTimeout(typeTimer);
+      let idx = 0;
+      (function step() {
+        typed.textContent = text.slice(0, idx++);
+        if (idx <= text.length) typeTimer = setTimeout(step, 110);
+      })();
+    }
+
+    function applyLang(isFirst) {
+      const t = i18n[lang];
+      document.documentElement.lang = t.htmlLang;
+      shareLabel.textContent = t.share;
+      document.getElementById('installLabel').textContent = t.install;
+      document.getElementById('casfilmEmpty').textContent = t.casfilmEmpty;
+      reportLabel.textContent = t.report;
+      reportLink.href = 'mailto:' + REPORT_EMAIL +
+        '?subject=' + encodeURIComponent(t.report + ' - MAYKELCITO WWB') +
+        '&body=' + encodeURIComponent(t.reportMsg);
+      welcomeEl.textContent = t.welcome;
+      langBtn.textContent = t.toggle;
+      if (isFirst) {
+        typeTimer = setTimeout(() => typeText(t.subtitle), 700);
+      } else {
+        typeText(t.subtitle);
+      }
+    }
+
+    // Botón compartir
+    const shareBtn = document.getElementById('share');
+    const shareLabel = document.getElementById('shareLabel');
+    shareBtn.addEventListener('click', async () => {
+      const data = { title: 'MAYKELCITO WWB', url: 'https://maykel644.github.io/maykelcito/' };
+      if (navigator.share) {
+        try { await navigator.share(data); } catch (e) {}
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(data.url);
+      } catch (e) {
+        const t = document.createElement('textarea');
+        t.value = data.url;
+        document.body.appendChild(t);
+        t.select();
+        document.execCommand('copy');
+        t.remove();
+      }
+      shareLabel.textContent = i18n[lang].copied;
+      setTimeout(() => { shareLabel.textContent = i18n[lang].share; }, 2000);
+    });
+
+    // Cambio de idioma
+    langBtn.addEventListener('click', () => {
+      lang = lang === 'es' ? 'en' : 'es';
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+      applyLang(false);
+    });
+    applyLang(true);
+
+    // Hora en vivo (Ecuador)
+    const clockEl = document.getElementById('clock');
+    const clockFmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Guayaquil',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    function tick() { clockEl.textContent = clockFmt.format(new Date()); }
+    tick();
+    setInterval(tick, 1000);
+
+    // Selector de color de la lluvia
+    const palette = [
+      { name: 'Blanco', rgb: '255,255,255' },
+      { name: 'Rojo', rgb: '255,60,60' },
+      { name: 'Azul', rgb: '70,150,255' },
+      { name: 'Morado', rgb: '180,90,255' },
+      { name: 'Verde', rgb: '60,255,140' }
+    ];
+    const colorsEl = document.getElementById('colors');
+    const dots = [];
+    function setRain(i) {
+      rainRGB = palette[i].rgb;
+      dots.forEach((d, j) => d.classList.toggle('active', j === i));
+      try { localStorage.setItem('rain', String(i)); } catch (e) {}
+    }
+    palette.forEach((c, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'dot';
+      b.style.background = 'rgb(' + c.rgb + ')';
+      b.setAttribute('aria-label', c.name);
+      b.addEventListener('click', () => setRain(i));
+      colorsEl.appendChild(b);
+      dots.push(b);
+    });
+    let startColor = 0;
+    try {
+      const s = parseInt(localStorage.getItem('rain'), 10);
+      if (s >= 0 && s < palette.length) startColor = s;
+    } catch (e) {}
+    setRain(startColor);
+
+    // Música de fondo
+    const bgm = document.getElementById('bgm');
+    const musicBtn = document.getElementById('music');
+    bgm.volume = 0.5;
+
+    // Lista de canciones: para agregar más, copia una línea y cambia el título y el archivo
+    const tracks = [
+      { title: 'Canción 1', src: 'musica.mp3' },
+      { title: 'You Da One - Anuel AA', src: 'you-da-one.m4a' }
+    ];
+    let currentTrack = 0;
+    try {
+      const savedTrack = parseInt(localStorage.getItem('track'), 10);
+      if (savedTrack >= 0 && savedTrack < tracks.length) currentTrack = savedTrack;
+    } catch (e) {}
+    bgm.loop = tracks.length === 1;
+    bgm.src = tracks[currentTrack].src;
+
+    const listBtn = document.getElementById('musicList');
+    const playlistEl = document.getElementById('playlist');
+
+    function renderPlaylist() {
+      playlistEl.textContent = '';
+      const head = document.createElement('div');
+      head.className = 'playlist-title';
+      head.textContent = 'Música';
+      playlistEl.appendChild(head);
+      tracks.forEach((t, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'track' + (i === currentTrack ? ' active' : '');
+        b.textContent = (i === currentTrack && !bgm.paused ? '▶ ' : '') + (i + 1) + '. ' + t.title;
+        b.addEventListener('click', () => selectTrack(i));
+        playlistEl.appendChild(b);
+      });
+    }
+    function selectTrack(i) {
+      currentTrack = i;
+      bgm.src = tracks[i].src;
+      userPaused = false;
+      try {
+        localStorage.setItem('track', String(i));
+        localStorage.setItem('music', 'on');
+      } catch (e) {}
+      playMusic();
+      renderPlaylist();
+    }
+    listBtn.addEventListener('click', () => {
+      if (playlistEl.style.display === 'none') {
+        renderPlaylist();
+        playlistEl.style.display = 'block';
+      } else {
+        playlistEl.style.display = 'none';
+      }
+    });
+    // Al terminar una canción pasa a la siguiente (con una sola canción se repite)
+    bgm.addEventListener('ended', () => {
+      if (tracks.length > 1) selectTrack((currentTrack + 1) % tracks.length);
+    });
+    let userPaused = false;
+    let resumeOnShow = false;
+    try { if (localStorage.getItem('music') === 'off') userPaused = true; } catch (e) {}
+
+    function updateMusicUI() {
+      const playing = !bgm.paused;
+      musicBtn.textContent = playing ? '🔊' : '🔇';
+      musicBtn.classList.toggle('on', playing);
+      renderPlaylist();
+    }
+    function playMusic() {
+      const p = bgm.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+    bgm.addEventListener('play', updateMusicUI);
+    bgm.addEventListener('pause', updateMusicUI);
+
+    musicBtn.addEventListener('click', () => {
+      if (bgm.paused) {
+        userPaused = false;
+        playMusic();
+      } else {
+        userPaused = true;
+        bgm.pause();
+      }
+      try { localStorage.setItem('music', userPaused ? 'off' : 'on'); } catch (e) {}
+    });
+
+    // Los celulares no dejan sonar música sola: arranca con el primer toque en la página
+    function startOnGesture(e) {
+      if (e.target.closest && e.target.closest('#music, #musicList, #playlist')) return;
+      document.removeEventListener('pointerdown', startOnGesture);
+      if (!userPaused) playMusic();
+    }
+    document.addEventListener('pointerdown', startOnGesture);
+    if (!userPaused) playMusic();
+
+    // Se pausa al salir de la página y vuelve al regresar
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        resumeOnShow = !bgm.paused;
+        bgm.pause();
+      } else if (resumeOnShow && !userPaused) {
+        resumeOnShow = false;
+        playMusic();
+      }
+    });
+
+    // Videos: la música de fondo se pausa mientras suena un video y vuelve al terminar.
+    // Solo suena un video a la vez.
+    let musicWasOn = false;
+    function anyVideoPlaying() {
+      return Array.from(document.querySelectorAll('video')).some((v) => !v.paused && !v.ended);
+    }
+    function resumeMusicAfterVideo() {
+      if (musicWasOn && !userPaused && !document.hidden && !anyVideoPlaying()) {
+        musicWasOn = false;
+        playMusic();
+      }
+    }
+    document.addEventListener('play', (e) => {
+      if (!e.target || e.target.tagName !== 'VIDEO') return;
+      if (!bgm.paused) {
+        musicWasOn = true;
+        bgm.pause();
+      }
+      document.querySelectorAll('video').forEach((v) => { if (v !== e.target) v.pause(); });
+    }, true);
+    document.addEventListener('pause', (e) => {
+      if (e.target && e.target.tagName === 'VIDEO') resumeMusicAfterVideo();
+    }, true);
+    document.addEventListener('ended', (e) => {
+      if (e.target && e.target.tagName === 'VIDEO') resumeMusicAfterVideo();
+    }, true);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) resumeMusicAfterVideo();
+    });
+
+    // CASFILM estilo TikTok: pantalla completa, un video por pantalla, se reproduce solo al llegar.
+    // Los videos que subes con el botón + se guardan en Supabase y los ve todo el mundo.
+    const SUPABASE_URL = 'https://ythcoiinzqtjhqhmtzig.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_QJPDyE7hxyagBqaK6NK1kw_dbjHVEMD'; // clave pública, es seguro dejarla aquí
+    const BUCKET = 'casfilm';
+    const MAX_MB = 30;
+    let sb = null;
+    try {
+      if (window.supabase && window.supabase.createClient) {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+    } catch (e) { sb = null; }
+
+    // Videos fijos de la página (aparecen después de los que subes con el botón +)
+    const casfilmVideos = [
+      { key: 'fijo-1', src: 'video.mp4', poster: 'poster.jpg' }
+    ];
+
+    const reelsEl = document.getElementById('reels');
+    const reelsFeed = document.getElementById('reelsFeed');
+    const reelsMute = document.getElementById('reelsMute');
+    const reelsClose = document.getElementById('reelsClose');
+    const reelsLoading = document.getElementById('reelsLoading');
+    const casfilmEmpty = document.getElementById('casfilmEmpty');
+    const reelVideos = [];
+    let reelsMuted = false;
+    let reelsOpen = false;
+
+    function updateEmptyState() {
+      casfilmEmpty.style.display = reelsFeed.children.length ? 'none' : 'flex';
+    }
+    function updateReelsMuteUI() { reelsMute.textContent = reelsMuted ? '🔇' : '🔊'; }
+
+    function playReel(v) {
+      v.muted = reelsMuted;
+      const p = v.play();
+      if (p && p.catch) {
+        p.catch(() => {
+          // El navegador no deja reproducir con sonido: entra en silencio y se activa con el botón 🔇
+          reelsMuted = true;
+          v.muted = true;
+          updateReelsMuteUI();
+          const p2 = v.play();
+          if (p2 && p2.catch) p2.catch(() => {});
+        });
+      }
+    }
+
+    const reelObserver = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        const v = en.target.querySelector('video');
+        if (!v) return;
+        if (en.isIntersecting) {
+          if (reelsOpen) playReel(v);
+        } else {
+          v.pause();
+          v.currentTime = 0;
+        }
+      });
+    }, { root: reelsFeed, threshold: 0.65 });
+
+    // Likes: cada visitante recibe un código anónimo, así un mismo teléfono no da dos likes al mismo video
+    let visitorId = null;
+    try { visitorId = localStorage.getItem('visitor'); } catch (e) {}
+    if (!visitorId) {
+      visitorId = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : (Date.now().toString(36) + Math.random().toString(36).slice(2, 12));
+      try { localStorage.setItem('visitor', visitorId); } catch (e) {}
+    }
+    const likeState = { counts: {}, mine: new Set() };
+
+    async function loadLikes() {
+      if (!sb) return;
+      try {
+        const c = await sb.rpc('casfilm_like_counts');
+        if (!c.error && c.data) c.data.forEach((r) => { likeState.counts[r.vid] = r.likes; });
+        const mine = await sb.from('casfilm_likes').select('video_id').eq('visitor_id', visitorId);
+        if (!mine.error && mine.data) mine.data.forEach((r) => likeState.mine.add(r.video_id));
+      } catch (e) {}
+    }
+
+    function buildLikeButton(key) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'reel-like';
+      btn.setAttribute('aria-label', 'Me gusta');
+      const heart = document.createElement('span');
+      heart.className = 'heart';
+      const count = document.createElement('span');
+      count.className = 'count';
+      btn.appendChild(heart);
+      btn.appendChild(count);
+      function paint() {
+        const liked = likeState.mine.has(key);
+        btn.classList.toggle('liked', liked);
+        heart.textContent = liked ? '♥' : '♡';
+        count.textContent = String(likeState.counts[key] || 0);
+      }
+      paint();
+      btn.addEventListener('click', async () => {
+        const wasLiked = likeState.mine.has(key);
+        const before = likeState.counts[key] || 0;
+        // Se actualiza al instante y, si falla el servidor, se devuelve
+        if (wasLiked) { likeState.mine.delete(key); likeState.counts[key] = Math.max(0, before - 1); }
+        else { likeState.mine.add(key); likeState.counts[key] = before + 1; }
+        paint();
+        btn.classList.remove('pop');
+        void btn.offsetWidth;
+        if (!wasLiked) btn.classList.add('pop');
+        try {
+          const r = wasLiked
+            ? await sb.from('casfilm_likes').delete().eq('video_id', key).eq('visitor_id', visitorId)
+            : await sb.from('casfilm_likes').insert({ video_id: key, visitor_id: visitorId });
+          if (r.error && r.error.code !== '23505') throw r.error;
+        } catch (err) {
+          if (wasLiked) likeState.mine.add(key); else likeState.mine.delete(key);
+          likeState.counts[key] = before;
+          paint();
+        }
+      });
+      return btn;
+    }
+
+    async function deleteVideo(item, reel, v) {
+      if (!sb || !confirm('¿Borrar este video?')) return;
+      try {
+        const r1 = await sb.from('casfilm_videos').delete().eq('id', item.id);
+        await sb.from('casfilm_likes').delete().eq('video_id', item.id);
+        if (r1.error) throw r1.error;
+        await sb.storage.from(BUCKET).remove([item.path]);
+        v.pause();
+        reelObserver.unobserve(reel);
+        reel.remove();
+        const k = reelVideos.indexOf(v);
+        if (k >= 0) reelVideos.splice(k, 1);
+        updateEmptyState();
+      } catch (err) {
+        alert('No se pudo borrar: ' + (err && err.message ? err.message : 'error desconocido'));
+      }
+    }
+
+    // Cuenta una vista por video y por dispositivo
+    function countView(item) {
+      if (!item.id || !sb) return;
+      let seen = [];
+      try { seen = JSON.parse(localStorage.getItem('casfilm_viewed') || '[]'); } catch (e) {}
+      const k = String(item.id);
+      if (seen.indexOf(k) >= 0) return;
+      seen.push(k);
+      try { localStorage.setItem('casfilm_viewed', JSON.stringify(seen.slice(-500))); } catch (e) {}
+      sb.rpc('casfilm_add_view', { p_id: k }).then(() => {}, () => {});
+    }
+
+    function createReel(item, index) {
+      const reel = document.createElement('div');
+      reel.className = 'reel';
+      if (item.id) reel.dataset.vid = item.id;
+      const v = document.createElement('video');
+      v.loop = true;
+      v.setAttribute('playsinline', '');
+      v.preload = index === 0 ? 'auto' : 'metadata';
+      if (item.poster) v.poster = item.poster;
+      v.src = item.src;
+      const icon = document.createElement('div');
+      icon.className = 'reel-play';
+      icon.textContent = '▶';
+      const bar = document.createElement('div');
+      bar.className = 'reel-bar';
+      const fill = document.createElement('i');
+      bar.appendChild(fill);
+      reel.appendChild(v);
+      reel.appendChild(icon);
+      reel.appendChild(bar);
+      const uname = item.userId ? profileNames[item.userId] : (item.key ? 'maykelcito' : '');
+      if (uname) {
+        const ub = document.createElement('button');
+        ub.type = 'button';
+        ub.className = 'reel-user' + (item.userId ? '' : ' plain');
+        ub.textContent = '@' + uname;
+        if (item.userId) ub.addEventListener('click', () => openProfile(item.userId));
+        reel.appendChild(ub);
+      }
+      if (item.title) {
+        const name = document.createElement('p');
+        name.className = 'reel-title';
+        name.textContent = item.title;
+        reel.appendChild(name);
+      }
+      const key = item.key || item.id;
+      if (key || item.id) {
+        const actions = document.createElement('div');
+        actions.className = 'reel-actions';
+        const unameA = item.userId ? profileNames[item.userId] : (item.key ? 'maykelcito' : '');
+        if (unameA) {
+          const av = document.createElement('button');
+          av.type = 'button';
+          av.className = 'reel-avatar' + (item.userId ? '' : ' plain');
+          av.setAttribute('aria-label', 'Perfil');
+          av.dataset.uid = item.userId || '';
+          if (item.userId) paintAvatar(av, item.userId); else av.textContent = unameA.charAt(0).toUpperCase();
+          if (item.userId) av.addEventListener('click', () => openProfile(item.userId));
+          actions.appendChild(av);
+        }
+        if (key && sb) actions.appendChild(buildLikeButton(key));
+        const sh = document.createElement('button');
+        sh.type = 'button';
+        sh.className = 'reel-share';
+        sh.setAttribute('aria-label', 'Compartir');
+        sh.innerHTML = '<span class="ico">➦</span><span class="lbl">Compartir</span>';
+        sh.addEventListener('click', async () => {
+          const data = { title: 'CASFILM', text: item.title || 'Mira este video en CASFILM', url: location.href.split('#')[0] };
+          try {
+            if (navigator.share) await navigator.share(data);
+            else { await navigator.clipboard.writeText(data.url); sh.querySelector('.lbl').textContent = '¡Copiado!'; setTimeout(() => { sh.querySelector('.lbl').textContent = 'Compartir'; }, 1500); }
+          } catch (e) {}
+        });
+        actions.appendChild(sh);
+        if (item.id) {
+          // Botón de borrar: lo ve el dueño de la página en todos los videos y cada persona en los suyos
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'reel-del';
+          del.dataset.owner = item.userId || '';
+          if (currentUserId && del.dataset.owner === currentUserId) del.classList.add('mine');
+          del.setAttribute('aria-label', 'Borrar video');
+          del.textContent = '🗑';
+          del.addEventListener('click', () => deleteVideo(item, reel, v));
+          actions.appendChild(del);
+        }
+        reel.appendChild(actions);
+      }
+      // Tocar el video lo pausa o lo reanuda
+      v.addEventListener('click', () => {
+        if (v.paused) {
+          playReel(v);
+        } else {
+          v.pause();
+          reel.classList.add('paused');
+        }
+      });
+      v.addEventListener('play', () => {
+        reel.classList.remove('paused');
+        countView(item);
+      });
+      v.addEventListener('timeupdate', () => {
+        if (v.duration) fill.style.width = (v.currentTime / v.duration * 100) + '%';
+      });
+      reelVideos.push(v);
+      reelObserver.observe(reel);
+      return reel;
+    }
+
+    async function loadRemoteVideos() {
+      if (!sb) return [];
+      const r = await sb.from('casfilm_videos')
+        .select('id,title,video_path,video_url,created_at,user_id')
+        .eq('approved', true)
+        .order('created_at', { ascending: false });
+      if (r.error || !r.data) return [];
+      return r.data.map((row) => ({ id: row.id, title: row.title, src: row.video_url, path: row.video_path, userId: row.user_id }));
+    }
+    function withTimeout(promise, ms) {
+      return Promise.race([
+        promise.catch(() => []),
+        new Promise((resolve) => setTimeout(() => resolve([]), ms))
+      ]);
+    }
+
+    const profileNames = {};
+    const profileData = {};
+    function paintAvatar(el, uid) {
+      const d = profileData[uid] || {};
+      const name = profileNames[uid] || '?';
+      el.textContent = name.charAt(0).toUpperCase();
+      if (d.avatar_url) {
+        el.style.backgroundImage = 'url("' + d.avatar_url.replace(/"/g, '') + '")';
+        el.classList.add('has-img');
+      } else {
+        el.style.backgroundImage = '';
+        el.classList.remove('has-img');
+      }
+    }
+    async function loadProfiles() {
+      if (!sb) return [];
+      let r = await sb.from('casfilm_profiles').select('id,username,avatar_url,bio');
+      if (r.error) r = await sb.from('casfilm_profiles').select('id,username');
+      if (!r.error && r.data) r.data.forEach((p) => { profileNames[p.id] = p.username; profileData[p.id] = p; });
+      return [];
+    }
+
+    // Carga la lista desde el principio, así ya está lista cuando abres CASFILM
+    const reelsReady = Promise.all([withTimeout(loadProfiles(), 6000), withTimeout(loadRemoteVideos(), 6000), withTimeout(loadLikes(), 6000)]).then(([, remote]) => {
+      remote.concat(casfilmVideos).forEach((item, i) => {
+        reelsFeed.appendChild(createReel(item, i));
+      });
+      updateEmptyState();
+    });
+
+    // --- Cuentas, subir, borrar y aprobar ---
+    const reelsAdd = document.getElementById('reelsAdd');
+    const reelsPanel = document.getElementById('reelsPanel');
+    const loginView = document.getElementById('loginView');
+    const uploadView = document.getElementById('uploadView');
+    const pendingView = document.getElementById('pendingView');
+    const pendingList = document.getElementById('pendingList');
+    const pendingBtn = document.getElementById('pendingBtn');
+    const panelMsg = document.getElementById('panelMsg');
+    const authEmail = document.getElementById('authEmail');
+    const authPass = document.getElementById('authPass');
+    const authUser = document.getElementById('authUser');
+    function validName(n) { return /^[a-z0-9_]{3,20}$/.test(n); }
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const upTitle = document.getElementById('upTitle');
+    const upFile = document.getElementById('upFile');
+    const upFileName = document.getElementById('upFileName');
+    const uploadBtn = document.getElementById('uploadBtn');
+    let currentUserId = null;
+    let isAdmin = false; // true solo para el dueño de la página
+    let myUsername = null;
+
+    function showMsg(text, ok) {
+      panelMsg.textContent = text || '';
+      panelMsg.classList.toggle('ok', !!ok);
+    }
+    function showView(name) {
+      loginView.style.display = name === 'login' ? 'block' : 'none';
+      uploadView.style.display = name === 'upload' ? 'block' : 'none';
+      pendingView.style.display = name === 'pending' ? 'block' : 'none';
+      document.getElementById('nameView').style.display = name === 'name' ? 'block' : 'none';
+      document.getElementById('usersView').style.display = name === 'users' ? 'block' : 'none';
+      document.getElementById('editView').style.display = name === 'edit' ? 'block' : 'none';
+    }
+    function closePanel() { reelsPanel.style.display = 'none'; }
+
+    function refreshDeleteButtons() {
+      reelsEl.classList.toggle('is-owner', isAdmin);
+      document.querySelectorAll('.reel-del').forEach((d) => {
+        d.classList.toggle('mine', !!currentUserId && d.dataset.owner === currentUserId);
+      });
+    }
+    async function applySession(session) {
+      currentUserId = session && session.user ? session.user.id : null;
+      isAdmin = false;
+      if (currentUserId && sb) {
+        try {
+          const r = await sb.rpc('is_casfilm_admin');
+          isAdmin = !r.error && r.data === true;
+        } catch (e) { isAdmin = false; }
+      }
+      myUsername = null;
+      if (currentUserId && sb) {
+        try {
+          let pr = await sb.from('casfilm_profiles').select('id,username,avatar_url,bio').eq('id', currentUserId);
+          if (pr.error) pr = await sb.from('casfilm_profiles').select('id,username').eq('id', currentUserId);
+          if (!pr.error && pr.data && pr.data[0]) { myUsername = pr.data[0].username; profileNames[currentUserId] = myUsername; profileData[currentUserId] = pr.data[0]; }
+        } catch (e) { myUsername = null; }
+      }
+      refreshDeleteButtons();
+    }
+
+    async function loadPending() {
+      const r = await sb.from('casfilm_videos')
+        .select('id,title,video_path,video_url,created_at,user_id')
+        .eq('approved', false)
+        .order('created_at', { ascending: true });
+      return (r.error || !r.data) ? [] : r.data;
+    }
+    async function refreshPendingCount() {
+      const rows = await loadPending().catch(() => []);
+      pendingBtn.textContent = 'Revisar pendientes (' + rows.length + ')';
+    }
+
+    function openPanel() {
+      if (!sb) {
+        alert('No se pudo conectar con el servidor. Revisa tu internet y recarga la página.');
+        return;
+      }
+      showMsg('');
+      showView(!currentUserId ? 'login' : (myUsername ? 'upload' : 'name'));
+      pendingBtn.style.display = isAdmin ? 'block' : 'none';
+      reelsPanel.style.display = 'flex';
+      if (isAdmin) refreshPendingCount();
+    }
+
+    if (sb) {
+      sb.auth.getSession()
+        .then((r) => applySession(r && r.data ? r.data.session : null))
+        .catch(() => {});
+      // Dentro de este aviso no se llama a otras funciones de Supabase: se aplaza con setTimeout
+      sb.auth.onAuthStateChange((_event, session) => { setTimeout(() => applySession(session), 0); });
+    }
+
+    reelsAdd.addEventListener('click', openPanel);
+    document.getElementById('panelClose').addEventListener('click', closePanel);
+
+    function friendlyAuthError(err) {
+      const m = ((err && err.message) || '').toLowerCase();
+      if (m.indexOf('already') >= 0 && m.indexOf('registered') >= 0) return 'Ese correo ya tiene cuenta. Toca "Entrar".';
+      if (m.indexOf('password') >= 0) return 'La contraseña es muy corta o muy débil. Usa al menos 6 caracteres.';
+      if (m.indexOf('email') >= 0 && m.indexOf('invalid') >= 0) return 'Ese correo no es válido.';
+      if (m.indexOf('rate') >= 0 || m.indexOf('limit') >= 0) return 'Demasiados intentos. Espera unos minutos.';
+      return 'No se pudo completar. Revisa tus datos e inténtalo otra vez.';
+    }
+
+    async function doAuth(mode) {
+      const email = authEmail.value.trim();
+      const password = authPass.value;
+      if (!email || !password) { showMsg('Escribe tu correo y tu contraseña.'); return; }
+      const wantName = authUser.value.trim().toLowerCase();
+      if (mode === 'signup' && !validName(wantName)) { showMsg('Elige un nombre de usuario de 3 a 20 letras, números o _ .'); return; }
+      if (mode === 'signup' && password.length < 6) { showMsg('La contraseña debe tener al menos 6 caracteres.'); return; }
+      loginBtn.disabled = true;
+      signupBtn.disabled = true;
+      showMsg(mode === 'signup' ? 'Creando tu cuenta…' : 'Entrando…', true);
+      try {
+        let session = null;
+        if (mode === 'signup') {
+          const r = await sb.auth.signUp({ email, password });
+          if (r.error) { showMsg(friendlyAuthError(r.error)); return; }
+          session = r.data && r.data.session;
+          if (!session) {
+            showMsg('Cuenta creada. Revisa tu correo para confirmarla y luego toca Entrar.', true);
+            return;
+          }
+        } else {
+          const r = await sb.auth.signInWithPassword({ email, password });
+          if (r.error) { showMsg('Correo o contraseña incorrectos.'); return; }
+          session = r.data && r.data.session;
+        }
+        authPass.value = '';
+        if (mode === 'signup') {
+          const ir = await sb.from('casfilm_profiles').insert({ id: session.user.id, username: wantName });
+          if (ir.error) {
+            await applySession(session);
+            openPanel();
+            showMsg(ir.error.code === '23505' ? 'Ese nombre de usuario ya existe. Elige otro.' : 'No se pudo guardar el nombre. Intenta otra vez.');
+            return;
+          }
+        }
+        await applySession(session);
+        openPanel();
+      } catch (err) {
+        showMsg('No se pudo conectar. Revisa tu internet.');
+      } finally {
+        loginBtn.disabled = false;
+        signupBtn.disabled = false;
+      }
+    }
+    loginBtn.addEventListener('click', () => doAuth('login'));
+    signupBtn.addEventListener('click', () => doAuth('signup'));
+
+    upFile.addEventListener('change', () => {
+      const f = upFile.files[0];
+      upFileName.textContent = f ? f.name : 'Elegir video';
+    });
+
+    uploadBtn.addEventListener('click', async () => {
+      const f = upFile.files[0];
+      if (!f) { showMsg('Primero elige un video.'); return; }
+      if (f.size > MAX_MB * 1024 * 1024) {
+        showMsg('El video pesa más de ' + MAX_MB + ' MB. Elige uno más liviano.');
+        return;
+      }
+      const ext = ((f.name.split('.').pop() || 'mp4').toLowerCase().replace(/[^a-z0-9]/g, '')) || 'mp4';
+      const path = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+      uploadBtn.disabled = true;
+      showMsg('Subiendo… no cierres esta pantalla.', true);
+      try {
+        const up = await sb.storage.from(BUCKET).upload(path, f, {
+          contentType: f.type || 'video/mp4',
+          cacheControl: '3600',
+          upsert: false
+        });
+        if (up.error) throw up.error;
+        const url = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        const title = upTitle.value.trim() || null;
+        // El video del dueño se publica al instante; los de los demás esperan su aprobación
+        const ins = await sb.from('casfilm_videos')
+          .insert({ title: title, video_path: path, video_url: url, approved: isAdmin, user_id: currentUserId })
+          .select()
+          .single();
+        if (ins.error) {
+          await sb.storage.from(BUCKET).remove([path]);
+          throw ins.error;
+        }
+        upFile.value = '';
+        upTitle.value = '';
+        upFileName.textContent = 'Elegir video';
+        if (isAdmin) {
+          const reel = createReel({ id: ins.data.id, title: title, src: url, path: path, userId: currentUserId }, 0);
+          reelsFeed.insertBefore(reel, reelsFeed.firstChild);
+          reelsFeed.scrollTo({ top: 0, behavior: 'instant' });
+          updateEmptyState();
+          closePanel();
+        } else {
+          showMsg('¡Listo! Tu video está en revisión y se publicará cuando sea aprobado.', true);
+        }
+      } catch (err) {
+        showMsg('No se pudo subir: ' + (err && err.message ? err.message : 'error desconocido'));
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+
+    // Lista de videos pendientes (solo el dueño)
+    async function openPending() {
+      showView('pending');
+      showMsg('Cargando…', true);
+      const rows = await loadPending().catch(() => []);
+      pendingList.textContent = '';
+      showMsg(rows.length ? '' : 'No hay videos pendientes.', !rows.length);
+      rows.forEach((row) => {
+        const item = document.createElement('div');
+        item.className = 'pending-item';
+        const pv = document.createElement('video');
+        pv.controls = true;
+        pv.setAttribute('playsinline', '');
+        pv.preload = 'metadata';
+        pv.src = row.video_url + '#t=0.1';
+        const t = document.createElement('p');
+        t.textContent = row.title || 'Sin título';
+        const acts = document.createElement('div');
+        acts.className = 'pending-actions';
+        const ok = document.createElement('button');
+        ok.type = 'button';
+        ok.className = 'pending-ok';
+        ok.textContent = 'Aprobar';
+        const no = document.createElement('button');
+        no.type = 'button';
+        no.className = 'pending-no';
+        no.textContent = 'Borrar';
+        ok.addEventListener('click', async () => {
+          const r = await sb.from('casfilm_videos').update({ approved: true }).eq('id', row.id);
+          if (r.error) { showMsg('No se pudo aprobar: ' + r.error.message); return; }
+          reelsFeed.insertBefore(
+            createReel({ id: row.id, title: row.title, src: row.video_url, path: row.video_path, userId: row.user_id }, 1),
+            reelsFeed.firstChild
+          );
+          updateEmptyState();
+          item.remove();
+          showMsg('Video aprobado y publicado.', true);
+        });
+        no.addEventListener('click', async () => {
+          if (!confirm('¿Borrar este video?')) return;
+          const r = await sb.from('casfilm_videos').delete().eq('id', row.id);
+          if (r.error) { showMsg('No se pudo borrar: ' + r.error.message); return; }
+          await sb.storage.from(BUCKET).remove([row.video_path]);
+          item.remove();
+          showMsg('Video borrado.', true);
+        });
+        acts.appendChild(ok);
+        acts.appendChild(no);
+        item.appendChild(pv);
+        item.appendChild(t);
+        item.appendChild(acts);
+        pendingList.appendChild(item);
+      });
+    }
+    pendingBtn.addEventListener('click', openPending);
+    document.getElementById('pendingBack').addEventListener('click', () => {
+      showMsg('');
+      showView('upload');
+      refreshPendingCount();
+    });
+
+    document.getElementById('nameBtn').addEventListener('click', async () => {
+      const n = document.getElementById('nameInput').value.trim().toLowerCase();
+      if (!validName(n)) { showMsg('De 3 a 20 letras, números o _ .'); return; }
+      const r = await sb.from('casfilm_profiles').insert({ id: currentUserId, username: n });
+      if (r.error) { showMsg(r.error.code === '23505' ? 'Ese nombre ya existe. Elige otro.' : 'No se pudo guardar. Intenta otra vez.'); return; }
+      myUsername = n; profileNames[currentUserId] = n;
+      showMsg('');
+      showView('upload');
+    });
+
+    function fmtViews(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + ' M';
+      if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + ' K';
+      return String(n);
+    }
+    const profileView = document.getElementById('profileView');
+    async function openProfile(uid) {
+      closePanel();
+      const uname = profileNames[uid] || 'usuario';
+      paintAvatar(document.getElementById('profileAvatar'), uid);
+      document.getElementById('profileBio').textContent = (profileData[uid] && profileData[uid].bio) || '';
+      document.getElementById('profileEdit').style.display = (currentUserId && uid === currentUserId) ? 'inline-block' : 'none';
+      document.getElementById('profileName').textContent = '@' + uname;
+      const grid = document.getElementById('profileGrid');
+      grid.textContent = '';
+      document.getElementById('profileCount').textContent = 'Cargando…';
+      profileView.style.display = 'flex';
+      profileView.scrollTop = 0;
+      let rows = [];
+      try {
+        let r = await sb.from('casfilm_videos').select('id,title,video_url,created_at,views').eq('user_id', uid).eq('approved', true).order('created_at', { ascending: false });
+        if (r.error) r = await sb.from('casfilm_videos').select('id,title,video_url,created_at').eq('user_id', uid).eq('approved', true).order('created_at', { ascending: false });
+        rows = (r.error || !r.data) ? [] : r.data;
+      } catch (e) { rows = []; }
+      const totalViews = rows.reduce((a, r) => a + (r.views || 0), 0);
+      document.getElementById('profileCount').textContent = rows.length + (rows.length === 1 ? ' video' : ' videos') + ' · ' + fmtViews(totalViews) + (totalViews === 1 ? ' vista' : ' vistas');
+      if (!rows.length) {
+        const e = document.createElement('p');
+        e.className = 'profile-empty';
+        e.textContent = 'Todavía no tiene videos publicados.';
+        grid.appendChild(e);
+        return;
+      }
+      rows.forEach((row) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        const pv = document.createElement('video');
+        pv.muted = true;
+        pv.setAttribute('playsinline', '');
+        pv.preload = 'metadata';
+        pv.src = row.video_url + '#t=0.1';
+        b.appendChild(pv);
+        const vw = document.createElement('span');
+        vw.className = 'thumb-views';
+        vw.textContent = '▶ ' + fmtViews(row.views || 0);
+        b.appendChild(vw);
+        b.addEventListener('click', () => {
+          const target = reelsFeed.querySelector('.reel[data-vid="' + row.id + '"]');
+          profileView.style.display = 'none';
+          if (target) reelsFeed.scrollTo({ top: target.offsetTop, behavior: 'instant' });
+        });
+        grid.appendChild(b);
+      });
+    }
+    let editBlob = null;
+    const editPreview = document.getElementById('editPreview');
+    document.getElementById('profileEdit').addEventListener('click', () => {
+      if (!currentUserId) return;
+      editBlob = null;
+      document.getElementById('editFile').value = '';
+      document.getElementById('editFileName').textContent = 'Elegir foto de la galería';
+      document.getElementById('editBio').value = (profileData[currentUserId] && profileData[currentUserId].bio) || '';
+      paintAvatar(editPreview, currentUserId);
+      showMsg('');
+      showView('edit');
+      reelsPanel.style.display = 'flex';
+    });
+    document.getElementById('editCancel').addEventListener('click', closePanel);
+    document.getElementById('editFile').addEventListener('change', () => {
+      const f = document.getElementById('editFile').files[0];
+      if (!f) return;
+      document.getElementById('editFileName').textContent = f.name;
+      const img = new Image();
+      const url = URL.createObjectURL(f);
+      img.onload = () => {
+        const size = 256;
+        const c = document.createElement('canvas');
+        c.width = size; c.height = size;
+        const cx = c.getContext('2d');
+        const m = Math.min(img.width, img.height);
+        cx.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, size, size);
+        URL.revokeObjectURL(url);
+        c.toBlob((b) => {
+          editBlob = b;
+          editPreview.style.backgroundImage = 'url("' + c.toDataURL('image/jpeg', 0.85) + '")';
+          editPreview.classList.add('has-img');
+        }, 'image/jpeg', 0.85);
+      };
+      img.onerror = () => { showMsg('No se pudo leer esa imagen.'); };
+      img.src = url;
+    });
+    document.getElementById('editSave').addEventListener('click', async () => {
+      const btn = document.getElementById('editSave');
+      btn.disabled = true;
+      showMsg('Guardando…', true);
+      try {
+        const patch = { bio: document.getElementById('editBio').value.trim() || null };
+        if (editBlob) {
+          const path = 'avatars/' + currentUserId + '-' + Date.now() + '.jpg';
+          const up = await sb.storage.from(BUCKET).upload(path, editBlob, { contentType: 'image/jpeg', cacheControl: '3600', upsert: false });
+          if (up.error) throw up.error;
+          patch.avatar_url = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        }
+        const r = await sb.from('casfilm_profiles').update(patch).eq('id', currentUserId);
+        if (r.error) throw r.error;
+        profileData[currentUserId] = Object.assign({}, profileData[currentUserId], patch);
+        document.querySelectorAll('.reel-avatar[data-uid="' + currentUserId + '"]').forEach((a) => paintAvatar(a, currentUserId));
+        closePanel();
+        openProfile(currentUserId);
+      } catch (err) {
+        showMsg('No se pudo guardar: ' + (err && err.message ? err.message : 'error desconocido'));
+      } finally {
+        btn.disabled = false;
+      }
+    });
+    document.getElementById('profileClose').addEventListener('click', () => { profileView.style.display = 'none'; });
+    document.getElementById('myProfileBtn').addEventListener('click', () => { if (currentUserId) openProfile(currentUserId); });
+
+    // --- Chat general ---
+    const chatView = document.getElementById('chatView');
+    const chatList = document.getElementById('chatList');
+    const chatInput = document.getElementById('chatInput');
+    let chatTimer = null;
+    let chatLastSig = '';
+    let chatLastSend = 0;
+    function fmtTime(iso) {
+      const d = new Date(iso);
+      if (isNaN(d)) return '';
+      return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+    async function refreshChat() {
+      if (!sb) return;
+      let rows = [];
+      try {
+        const r = await sb.from('casfilm_messages').select('id,user_id,username,body,created_at').order('created_at', { ascending: false }).limit(100);
+        rows = (r.error || !r.data) ? null : r.data.slice().reverse();
+      } catch (e) { rows = null; }
+      if (rows === null) return;
+      const sig = rows.map((m) => m.id).join(',') + '|' + (currentUserId || '') + (isAdmin ? 'A' : '');
+      if (sig === chatLastSig) return;
+      chatLastSig = sig;
+      const nearBottom = chatList.scrollHeight - chatList.scrollTop - chatList.clientHeight < 80;
+      chatList.textContent = '';
+      if (!rows.length) {
+        const e = document.createElement('p');
+        e.className = 'chat-empty';
+        e.textContent = 'Sé el primero en escribir.';
+        chatList.appendChild(e);
+        return;
+      }
+      rows.forEach((m) => {
+        const box = document.createElement('div');
+        box.className = 'chat-msg' + (currentUserId && m.user_id === currentUserId ? ' me' : '');
+        const who = document.createElement('b');
+        who.textContent = '@' + (m.username || 'usuario');
+        const txt = document.createElement('span');
+        txt.textContent = m.body;
+        const tm = document.createElement('small');
+        tm.textContent = fmtTime(m.created_at);
+        box.appendChild(who);
+        box.appendChild(txt);
+        box.appendChild(tm);
+        if (isAdmin || (currentUserId && m.user_id === currentUserId)) {
+          const d = document.createElement('button');
+          d.type = 'button';
+          d.className = 'chat-del';
+          d.textContent = '🗑';
+          d.addEventListener('click', async () => {
+            const r = await sb.from('casfilm_messages').delete().eq('id', m.id);
+            if (!r.error) { chatLastSig = ''; refreshChat(); }
+          });
+          box.appendChild(d);
+        }
+        chatList.appendChild(box);
+      });
+      if (nearBottom || chatLastSig.indexOf('|') >= 0) chatList.scrollTop = chatList.scrollHeight;
+    }
+    function openChat() {
+      if (!sb) { alert('No se pudo conectar con el servidor. Revisa tu internet y recarga la página.'); return; }
+      closePanel();
+      chatView.style.display = 'flex';
+      chatLastSig = '';
+      reelVideos.forEach((v) => v.pause());
+      refreshChat();
+      clearInterval(chatTimer);
+      chatTimer = setInterval(refreshChat, 4000);
+    }
+    function closeChat() {
+      chatView.style.display = 'none';
+      clearInterval(chatTimer);
+      chatTimer = null;
+    }
+    document.getElementById('chatOpen').addEventListener('click', openChat);
+    document.getElementById('chatClose').addEventListener('click', closeChat);
+    document.getElementById('chatForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = chatInput.value.trim();
+      if (!body) return;
+      if (!currentUserId || !myUsername) {
+        closeChat();
+        openPanel();
+        return;
+      }
+      if (Date.now() - chatLastSend < 2000) return;
+      chatLastSend = Date.now();
+      chatInput.value = '';
+      const r = await sb.from('casfilm_messages').insert({ user_id: currentUserId, username: myUsername, body: body });
+      if (r.error) { chatInput.value = body; alert('No se pudo enviar el mensaje.'); return; }
+      chatLastSig = '';
+      refreshChat();
+    });
+
+    // --- Barra de abajo ---
+    document.getElementById('navHome').addEventListener('click', () => {
+      closeChat();
+      profileView.style.display = 'none';
+      closePanel();
+      reelsFeed.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    document.getElementById('navProfile').addEventListener('click', () => {
+      closeChat();
+      if (currentUserId && myUsername) openProfile(currentUserId);
+      else openPanel();
+    });
+    document.getElementById('navUsers').addEventListener('click', () => {
+      closeChat();
+      const list = document.getElementById('usersList');
+      list.textContent = '';
+      const ids = Object.keys(profileNames);
+      if (!ids.length) {
+        const e = document.createElement('p');
+        e.textContent = 'Todavía no hay usuarios.';
+        list.appendChild(e);
+      }
+      ids.forEach((id) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'panel-btn panel-btn-alt';
+        b.textContent = '@' + profileNames[id];
+        b.addEventListener('click', () => openProfile(id));
+        list.appendChild(b);
+      });
+      showMsg('');
+      showView('users');
+      reelsPanel.style.display = 'flex';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try { await sb.auth.signOut(); } catch (e) {}
+      await applySession(null);
+      closePanel();
+    });
+
+    // --- Abrir y cerrar CASFILM ---
+    async function openReels() {
+      if (reelsOpen) return;
+      reelsOpen = true;
+      reelsEl.style.display = 'block';
+      document.documentElement.style.overflow = 'hidden';
+      reelsFeed.scrollTop = 0;
+      updateReelsMuteUI();
+      try { history.pushState({ reels: 1 }, ''); } catch (e) {}
+      reelsLoading.style.display = 'flex';
+      await reelsReady;
+      reelsLoading.style.display = 'none';
+      if (!reelsOpen) return;
+      const first = reelsFeed.querySelector('video');
+      if (first) playReel(first);
+    }
+    function closeReels() {
+      if (!reelsOpen) return;
+      reelsOpen = false;
+      reelVideos.forEach((v) => v.pause());
+      closePanel();
+      if (typeof closeChat === 'function') closeChat();
+      reelsLoading.style.display = 'none';
+      reelsEl.style.display = 'none';
+      document.documentElement.style.overflow = '';
+    }
+    document.getElementById('casfilmBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      openReels();
+    });
+    reelsClose.addEventListener('click', () => {
+      // El botón "atrás" del celular también cierra CASFILM
+      if (history.state && history.state.reels) history.back();
+      else closeReels();
+    });
+    window.addEventListener('popstate', closeReels);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && reelsOpen) reelsClose.click();
+    });
+    reelsMute.addEventListener('click', () => {
+      reelsMuted = !reelsMuted;
+      reelVideos.forEach((v) => { v.muted = reelsMuted; });
+      updateReelsMuteUI();
+    });
+
+    // App instalable (pantalla de inicio)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+    let installEvent = null;
+    const installBtn = document.getElementById('installApp');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      installEvent = e;
+      installBtn.style.display = 'inline-flex';
+    });
+    installBtn.addEventListener('click', async () => {
+      if (!installEvent) return;
+      installEvent.prompt();
+      try { await installEvent.userChoice; } catch (e) {}
+      installEvent = null;
+      installBtn.style.display = 'none';
+    });
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
+    });
+
+    // Relámpagos suaves
+    const flash = document.getElementById('flash');
+    function lightning() {
+      const bursts = Math.random() < 0.5 ? 2 : 1;
+      let n = 0;
+      (function hit() {
+        flash.style.transition = 'opacity .06s';
+        flash.style.opacity = (0.2 + Math.random() * 0.2).toFixed(2);
+        setTimeout(() => {
+          flash.style.transition = 'opacity .5s';
+          flash.style.opacity = 0;
+          if (++n < bursts) setTimeout(hit, 160);
+        }, 80);
+      })();
+      setTimeout(lightning, 5000 + Math.random() * 9000);
+    }
+    setTimeout(lightning, 4000);
+  </script>
+</body>
+</html>
